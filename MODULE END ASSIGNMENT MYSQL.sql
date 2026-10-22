@@ -93,6 +93,7 @@ WHERE PREFERREDLOGINDEVICE = 'Phone';
 UPDATE CUSTOMER_CHURN 
 SET PREFEREDORDERCAT = 'Mobile Phone'
 WHERE PREFEREDORDERCAT = 'Mobile';
+
 /* Standardize payment mode values: Replace "COD" with "Cash on Delivery" and
 "CC" with "Credit Card" in the PreferredPaymentMode column.*/
 UPDATE CUSTOMER_CHURN
@@ -102,10 +103,12 @@ PREFERREDPAYMENTMODE = REPLACE(PREFERREDPAYMENTMODE,'CC','Credit Card');
 --  Rename the column "PreferedOrderCat" to "PreferredOrderCat".
 ALTER TABLE CUSTOMER_CHURN
 RENAME COLUMN PREFEREDORDERCAT TO PreferredOrderCat;
-SELECT * FROM CUSTOMER_CHURN;
+SELECT * FROM CUSTOMER_CHURN
+ 
 --  Rename the column "HourSpendOnApp" to "HoursSpentOnApp".
 ALTER TABLE CUSTOMER_CHURN
 RENAME COLUMN HOURSPENDONAPP TO HoursSpentOnApp;
+
 /*  Create a new column named ‘ComplaintReceived’ with values "Yes" if the
 corresponding value in the ‘Complain’ is 1, and "No" otherwise.*/
 ALTER TABLE CUSTOMER_CHURN
@@ -124,6 +127,7 @@ SET CHURNSTATUS = IF(CHURN = 1,'Churned','Active');
 ALTER TABLE CUSTOMER_CHURN
 DROP COLUMN CHURN,
 DROP COLUMN COMPLAIN;
+
 -- Data Exploration and Analysis:
 /* Retrieve the count of churned and active customers from the dataset.*/
 SELECT CHURNSTATUS, COUNT(*) AS COUNT FROM CUSTOMER_CHURN GROUP BY CHURNSTATUS;
@@ -132,6 +136,7 @@ SELECT CHURNSTATUS, COUNT(*) AS COUNT FROM CUSTOMER_CHURN GROUP BY CHURNSTATUS;
 churned.*/
 SELECT ROUND(AVG(TENURE)) AVG_TENURE , SUM(CASHBACKAMOUNT) TOTALCASHBACKAMOUNT FROM CUSTOMER_CHURN
 WHERE CHURNSTATUS ='CHURNED';
+
 -- Determine the percentage of churned customers who complained.
 SELECT CONCAT(ROUND(SUM(IF(COMPLAINTRECEIVED = 'Yes', 1,0))/ COUNT(*)*100,2),'%') AS CUSTOMERCOMPLAINED
 FROM CUSTOMER_CHURN WHERE CHURNSTATUS = 'Churned';
@@ -141,23 +146,29 @@ preferred order category is Laptop & Accessory.*/
 SELECT CITYTIER, COUNT(*) CHURNEDCUSTOMERS FROM CUSTOMER_CHURN
 WHERE CHURNSTATUS = 'CHURNED' AND PREFERREDORDERCAT='LAPTOP & ACCESSORY'
 GROUP BY CITYTIER ORDER BY CHURNEDCUSTOMERS DESC LIMIT 1;
+
 /* Identify the most preferred payment mode among active customers.*/
 SELECT PREFERREDPAYMENTMODE, COUNT(*) ACTIVECUSTOMERS FROM CUSTOMER_CHURN WHERE CHURNSTATUS='ACTIVE'
 GROUP BY PREFERREDPAYMENTMODE ORDER BY ACTIVECUSTOMERS DESC LIMIT 1;
+
 /* Calculate the total order amount hike from last year for customers who are single
 and prefer mobile phones for ordering. */
 SELECT SUM(ORDERAMOUNTHIKEFROMLASTYEAR) FROM CUSTOMER_CHURN
 WHERE MARITALSTATUS='SINGLE' AND PREFERREDORDERCAT='MOBILE PHONE';
+
 /* Find the average number of devices registered among customers who used UPI as
 their preferred payment mode.*/
 SELECT FLOOR(AVG(NUMBEROFDEVICEREGISTERED)) FROM CUSTOMER_CHURN
 WHERE PREFERREDPAYMENTMODE='UPI';
+
 -- Determine the city tier with the highest number of customers.
 SELECT CITYTIER, COUNT(*) CUSTOMERCOUNT FROM CUSTOMER_CHURN
 GROUP BY CITYTIER ORDER BY CUSTOMERCOUNT DESC LIMIT 1;
+
 -- Identify the gender that utilized the highest number of coupons.
 SELECT GENDER, SUM(COUPONUSED) TOTALCOUPONS FROM CUSTOMER_CHURN
 GROUP BY GENDER ORDER BY TOTALCOUPONS DESC LIMIT 1;
+
 /* List the number of customers and the maximum hours spent on the app in each
 preferred order category.*/
 SELECT PREFERREDORDERCAT, COUNT(*) CUSTOMERCOUNT, MAX(HOURSSPENTONAPP) MAXIMUMHOURS
@@ -233,9 +244,9 @@ VALUES  (1001, 50022, '2023-01-01', 2130),
 (1007, 54206, '2023-04-21', 3250),
 (1008, 54838, '2023-04-30', 1990);
 SELECT * FROM CUSTOMER_RETURNS;
+
 /*  Display the return details along with the customer details of those who have
 churned and have made complaints.*/
-SELECT * FROM CUSTOMER_CHURN;
 SELECT CUSTOMER_CHURN.CUSTOMERID,
 CUSTOMER_CHURN.TENURE,
 CUSTOMER_CHURN.PREFERREDLOGINDEVICE,
